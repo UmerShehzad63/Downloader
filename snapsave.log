@@ -1,0 +1,43 @@
+[2026-02-21T20:09:41.262Z] [Job gj9a9] Starting download for https://www.youtube.com/watch?v=xOmIOTLvxGw (Quality: 1080p, Format: mp4)
+[2026-02-21T20:09:41.266Z] [Job gj9a9] Full Command: python -m yt_dlp --no-playlist --newline --progress -o C:\Users\umers\OneDrive\Desktop\Project\downloader\tmp-downloads\gj9a9_temp.mp4 https://www.youtube.com/watch?v=xOmIOTLvxGw -f bv*[height<=1080][ext=mp4]+ba[ext=m4a]/b[height<=1080][ext=mp4]/bv*+ba/b --merge-output-format mp4 --ffmpeg-location \ROOT\node_modules\ffmpeg-static\ffmpeg.exe
+[2026-02-21T20:09:42.223Z] [Job gj9a9] STDERR: WARNING: ffmpeg-location \ROOT\node_modules\ffmpeg-static\ffmpeg.exe does not exist! Continuing without ffmpeg
+
+[2026-02-21T20:09:43.752Z] [Job gj9a9] STDERR: WARNING: [youtube] No supported JavaScript runtime could be found. Only deno is enabled by default; to use another runtime add  --js-runtimes RUNTIME[:PATH]  to your command/config. YouTube extraction without a JS runtime has been deprecated, and some formats may be missing. See  https://github.com/yt-dlp/yt-dlp/wiki/EJS  for details on installing one
+
+[2026-02-21T20:09:44.123Z] [Job gj9a9] STDERR: WARNING: You have requested merging of multiple formats but ffmpeg is not installed. The formats won't be merged
+
+[2026-02-21T20:09:47.448Z] [Job gj9a9] Process exited with code 0
+[2026-02-21T20:09:48.460Z] [Job gj9a9] Files present in download dir: 4pxgk_temp.f136.mp4, 4pxgk_temp.f140.m4a, as8swk_temp.f136.mp4, as8swk_temp.f140.m4a, dsnusj_temp.f137.mp4, dsnusj_temp.f140.m4a, gj9a9_temp.f137.mp4, gj9a9_temp.f140.m4a, hlxv2_temp.f137.mp4, hlxv2_temp.f140.m4a, oqit1n_temp.f137.mp4, oqit1n_temp.f140.m4a, q8aaag_temp.f136.mp4, q8aaag_temp.f140.m4a, test_ffmpeg.webm, test_manual.mp4, u616jj_temp.f137.mp4, u616jj_temp.f140.m4a, x8flpo_temp.f136.mp4, x8flpo_temp.f140.m4a
+[2026-02-21T20:09:48.463Z] [Job gj9a9] ERROR: No output file found for job gj9a9
+[2026-02-21T20:15:27.950Z] [87v160] URL: https://www.youtube.com/watch?v=xOmIOTLvxGw | Quality: 720p | Format: mp4 | Audio: false
+[2026-02-21T20:15:27.959Z] [87v160] FFmpeg path: \ROOT\node_modules\ffmpeg-static\ffmpeg.exe
+[2026-02-21T20:15:27.967Z] [87v160] Command: python -m yt_dlp --no-playlist --newline -o C:\Users\umers\OneDrive\Desktop\Project\downloader\tmp-downloads\87v160.%(ext)s -f best[height<=720][ext=mp4]/bestvideo[height<=720]+bestaudio/best --merge-output-format mp4 --ffmpeg-location \ROOT\node_modules\ffmpeg-static https://www.youtube.com/watch?v=xOmIOTLvxGw
+[2026-02-21T20:15:29.220Z] [87v160] STDERR: WARNING: ffmpeg-location \ROOT\node_modules\ffmpeg-static does not exist! Continuing without ffmpeg
+[2026-02-21T20:15:30.941Z] [87v160] STDERR: WARNING: [youtube] No supported JavaScript runtime could be found. Only deno is enabled by default; to use another runtime add  --js-runtimes RUNTIME[:PATH]  to your command/config. YouTube extraction without a JS runtime has been deprecated, and some formats may be missing. See  https://github.com/yt-dlp/yt-dlp/wiki/EJS  for details on installing one
+[2026-02-21T20:15:32.941Z] [87v160] Exit code: 0
+[2026-02-21T20:15:33.448Z] [87v160] My files: 87v160.mp4
+[2026-02-21T20:15:33.450Z] [87v160] SUCCESS: 87v160.mp4
+[2026-02-21T20:17:08.727Z] [3n84sn] URL: https://www.youtube.com/watch?v=xOmIOTLvxGw | Quality: 720p | Format: mp4 | Audio: false
+[2026-02-21T20:17:08.731Z] [3n84sn] FFmpeg path: \ROOT\node_modules\ffmpeg-static\ffmpeg.exe
+[2026-02-21T20:17:08.744Z] [3n84sn] Command: python -m yt_dlp --no-playlist --newline -o C:\Users\umers\OneDrive\Desktop\Project\downloader\tmp-downloads\3n84sn.%(ext)s -f best[height<=720][ext=mp4]/bestvideo[height<=720]+bestaudio/best --merge-output-format mp4 --ffmpeg-location \ROOT\node_modules\ffmpeg-static https://www.youtube.com/watch?v=xOmIOTLvxGw
+[2026-02-21T20:17:10.012Z] [3n84sn] STDERR: WARNING: ffmpeg-location \ROOT\node_modules\ffmpeg-static does not exist! Continuing without ffmpeg
+[2026-02-21T20:17:11.628Z] [3n84sn] STDERR: WARNING: [youtube] No supported JavaScript runtime could be found. Only deno is enabled by default; to use another runtime add  --js-runtimes RUNTIME[:PATH]  to your command/config. YouTube extraction without a JS runtime has been deprecated, and some formats may be missing. See  https://github.com/yt-dlp/yt-dlp/wiki/EJS  for details on installing one
+[2026-02-21T20:17:13.341Z] [3n84sn] Exit code: 0
+[2026-02-21T20:17:13.851Z] [3n84sn] My files: 3n84sn.mp4
+[2026-02-21T20:17:13.853Z] [3n84sn] SUCCESS: 3n84sn.mp4
+[2026-02-21T20:30:08.019Z] [i9wvcc] URL: https://www.youtube.com/watch?v=8GhFmQPZAlo | Quality: 1080p | Format: mp4 | Audio: false
+[2026-02-21T20:30:08.022Z] [i9wvcc] FFmpeg path: \ROOT\node_modules\ffmpeg-static\ffmpeg.exe
+[2026-02-21T20:30:08.023Z] [i9wvcc] Command: python -m yt_dlp --no-playlist --newline -o C:\Users\umers\OneDrive\Desktop\Project\downloader\tmp-downloads\i9wvcc.%(ext)s -f best[height<=1080][ext=mp4]/bestvideo[height<=1080]+bestaudio/best --merge-output-format mp4 --ffmpeg-location \ROOT\node_modules\ffmpeg-static https://www.youtube.com/watch?v=8GhFmQPZAlo
+[2026-02-21T20:30:09.308Z] [i9wvcc] STDERR: WARNING: ffmpeg-location \ROOT\node_modules\ffmpeg-static does not exist! Continuing without ffmpeg
+[2026-02-21T20:30:11.445Z] [i9wvcc] STDERR: WARNING: [youtube] No supported JavaScript runtime could be found. Only deno is enabled by default; to use another runtime add  --js-runtimes RUNTIME[:PATH]  to your command/config. YouTube extraction without a JS runtime has been deprecated, and some formats may be missing. See  https://github.com/yt-dlp/yt-dlp/wiki/EJS  for details on installing one
+[2026-02-21T20:30:14.922Z] [i9wvcc] Exit code: 0
+[2026-02-21T20:30:15.436Z] [i9wvcc] My files: i9wvcc.mp4
+[2026-02-21T20:30:15.437Z] [i9wvcc] SUCCESS: i9wvcc.mp4
+[2026-02-21T21:00:00.701Z] [ow6wz1] URL: https://www.youtube.com/watch?v=OKZtJyzLMbM | Quality: 1080p | Format: mp4 | Audio: false
+[2026-02-21T21:00:00.703Z] [ow6wz1] FFmpeg path: \ROOT\node_modules\ffmpeg-static\ffmpeg.exe
+[2026-02-21T21:00:00.704Z] [ow6wz1] Command: python -m yt_dlp --no-playlist --newline -o C:\Users\umers\OneDrive\Desktop\Project\downloader\tmp-downloads\ow6wz1.%(ext)s -f best[height<=1080][ext=mp4]/bestvideo[height<=1080]+bestaudio/best --merge-output-format mp4 --ffmpeg-location \ROOT\node_modules\ffmpeg-static https://www.youtube.com/watch?v=OKZtJyzLMbM
+[2026-02-21T21:00:01.384Z] [ow6wz1] STDERR: WARNING: ffmpeg-location \ROOT\node_modules\ffmpeg-static does not exist! Continuing without ffmpeg
+[2026-02-21T21:00:03.023Z] [ow6wz1] STDERR: WARNING: [youtube] No supported JavaScript runtime could be found. Only deno is enabled by default; to use another runtime add  --js-runtimes RUNTIME[:PATH]  to your command/config. YouTube extraction without a JS runtime has been deprecated, and some formats may be missing. See  https://github.com/yt-dlp/yt-dlp/wiki/EJS  for details on installing one
+[2026-02-21T21:00:08.173Z] [ow6wz1] Exit code: 0
+[2026-02-21T21:00:08.683Z] [ow6wz1] My files: ow6wz1.mp4
+[2026-02-21T21:00:08.685Z] [ow6wz1] SUCCESS: ow6wz1.mp4

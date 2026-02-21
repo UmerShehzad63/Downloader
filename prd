@@ -1,0 +1,1015 @@
+
+
+# Product Requirements Document (PRD)
+## **SnapSave — Universal Video Downloader**
+
+---
+
+**Version:** 1.0
+**Last Updated:** January 15, 2025
+**Author:** Product Team
+**Status:** Ready for Engineering Review
+
+---
+
+## 1. Purpose
+
+A single-page web application that downloads any video from a pasted link. No accounts. No ads. No paid tiers. Completely free. Sustained only by a "Buy Me a Coffee" button.
+
+---
+
+## 2. Problem Statement
+
+Downloading videos from the internet is unnecessarily painful.
+
+| What users face today | What SnapSave does instead |
+|---|---|
+| Ad-infested download sites with malware redirects | Zero ads, zero pop-ups, zero redirects |
+| Broken support — works for YouTube, fails everywhere else | Supports 1,000+ sites via yt-dlp engine |
+| Confusing interfaces with 14 buttons and fake download links | One input field, one button, done |
+| Mandatory sign-ups and email harvesting | No accounts, no sign-ups, no data collection |
+| Limited format and quality options | Choose quality (360p–4K) and format (MP4, MP3, WEBM) |
+
+---
+
+## 3. Target Users
+
+**Primary — Casual Viewer (70%)**
+- Wants to save one video quickly
+- Uses mobile phone primarily
+- Zero tolerance for friction
+- Will never pay but may share the tool with friends
+
+**Secondary — Content Creator / Student (20%)**
+- Downloads videos for editing, study, or archival
+- Cares about quality (1080p/4K) and format
+- Uses desktop primarily
+- May buy a coffee out of genuine appreciation
+
+**Tertiary — Developer / Power User (10%)**
+- Values open-source, privacy-first tools
+- Most likely to donate and contribute
+- Wants to understand how it works
+
+---
+
+## 4. Competitive Landscape
+
+| Capability | Cobalt.tools | Y2Mate | SaveFrom.net | **SnapSave** |
+|---|---|---|---|---|
+| No ads | ✅ | ❌ | ❌ | ✅ |
+| No sign-up | ✅ | ✅ | ✅ | ✅ |
+| Multi-platform (100+ sites) | ✅ | ❌ | ❌ | ✅ |
+| Quality selector | Basic | Basic | Basic | ✅ Full |
+| Format selector (MP4/MP3/WEBM) | Basic | MP4 only | MP4 only | ✅ Full |
+| Audio extraction | ✅ | ✅ | ❌ | ✅ |
+| Mobile responsive | ✅ | ⚠️ | ⚠️ | ✅ |
+| Dark mode | ✅ | ❌ | ❌ | ✅ |
+| Download history (local) | ❌ | ❌ | ❌ | ✅ |
+| Open source | ✅ | ❌ | ❌ | ✅ |
+| Ethical monetization | Donations | Ads | Ads | ☕ BMC |
+
+**Best practices adopted from competitors:**
+1. **Cobalt.tools** — Zero ads, clean UI, privacy-first philosophy
+2. **4K Video Downloader** — Proper quality/format selector with file size estimates
+3. **SaveFrom.net** — One-input simplicity (paste and go)
+4. **yt-dlp** — Battle-tested extraction engine supporting 1,000+ sites
+
+---
+
+## 5. Supported Platforms (Video Sources)
+
+### Launch (Day 1)
+- YouTube (videos, Shorts)
+- Instagram (Reels, Stories, Posts)
+- TikTok
+- Twitter / X
+- Facebook (public videos)
+- Reddit (v.redd.it)
+
+### Month 2
+- Vimeo
+- Dailymotion
+- Pinterest
+- Twitch (clips)
+- LinkedIn
+
+### Month 3+
+- Bilibili
+- SoundCloud (audio)
+- Tumblr
+- Any direct `.mp4` / `.m3u8` URL
+- Generic fallback via yt-dlp's full site list (1,000+ sites)
+
+---
+
+## 6. Feature Requirements
+
+---
+
+### F1: Link Input
+
+**What:** A single, prominent input field where users paste any video URL.
+
+**Requirements:**
+- Auto-detect platform from URL and show platform icon
+- Validate URL format on the client before sending to server
+- Resolve shortened URLs (youtu.be, t.co, bit.ly)
+- "Paste from clipboard" button (especially useful on mobile)
+- Keyboard shortcut: `Ctrl+V` anywhere on page auto-focuses input and pastes
+- Clear button (×) to reset input
+
+**Error States:**
+| Condition | Message |
+|---|---|
+| Empty input | "Paste a video link to get started" |
+| Invalid URL format | "That doesn't look like a valid URL" |
+| Unsupported platform | "Sorry, we don't support this site yet" |
+| Video not found / private | "This video is private or doesn't exist" |
+| Network error | "Something went wrong. Please try again." |
+
+**UI Reference:**
+```
+┌───────────────────────────────────────────────────────────┐
+│  🔗  Paste video link here...              [📋 Paste] [→] │
+│                                                           │
+│  Supports: YouTube · TikTok · Instagram · Twitter · 1000+ │
+└───────────────────────────────────────────────────────────┘
+```
+
+**Acceptance Criteria:**
+- [ ] Accepts URLs from all launch platforms
+- [ ] Shows inline error for invalid URLs within 1 second
+- [ ] Resolves shortened URLs transparently
+- [ ] Input is sanitized against XSS and injection
+- [ ] Paste button works on iOS and Android browsers
+- [ ] Pressing Enter submits the form
+
+---
+
+### F2: Video Preview & Metadata
+
+**What:** After link submission, display a preview card with video information.
+
+**Requirements:**
+- Show: Thumbnail, Title, Duration, Author/Channel name, Platform badge
+- Loading skeleton animation while metadata is being fetched
+- Graceful fallback if thumbnail or title is unavailable
+- Truncate long titles with ellipsis (max 2 lines)
+
+**UI Reference:**
+```
+┌─────────────────────────────────────────────────┐
+│  ┌──────────────┐                               │
+│  │              │  📺 "How to Build a Startup"  │
+│  │  [Thumbnail] │  👤 TechWithTim               │
+│  │              │  ⏱ 14:32 · 🎬 YouTube        │
+│  └──────────────┘                               │
+└─────────────────────────────────────────────────┘
+```
+
+**Acceptance Criteria:**
+- [ ] Metadata loads in under 3 seconds for launch platforms
+- [ ] Thumbnail renders at correct 16:9 aspect ratio
+- [ ] Duration formatted as `MM:SS` or `HH:MM:SS`
+- [ ] Missing fields handled gracefully (show "Unknown" or hide)
+
+---
+
+### F3: Quality & Format Selector
+
+**What:** Let users choose their preferred video quality and output format.
+
+**Requirements:**
+
+| Option Type | Available Values |
+|---|---|
+| Video Quality | 360p, 480p, 720p **(default)**, 1080p, 1440p, 4K (if source has it) |
+| Video Format | MP4 **(default)**, WEBM |
+| Audio Only | MP3 (128kbps, 320kbps), M4A |
+
+- Grey out / disable quality options the source video doesn't have
+- Show estimated file size next to each quality option
+- Remember user's last chosen preference across sessions (localStorage)
+- Default selection: **720p MP4** (best quality-to-size ratio)
+
+**UI Reference:**
+```
+Quality:  [360p] [480p] [720p ✓] [1080p] [4K]
+Format:   [🎬 MP4 ✓] [🎬 WEBM] [🎵 MP3]
+
+Estimated size: ~45 MB
+```
+
+**Acceptance Criteria:**
+- [ ] At least 2 quality options shown for any video
+- [ ] Unavailable qualities are visibly disabled with a reason
+- [ ] Audio-only extraction works for all launch platforms
+- [ ] File size estimates are within ±20% of actual size
+- [ ] User preference persists across browser sessions
+
+---
+
+### F4: Download Execution
+
+**What:** Process the video server-side and deliver the file to the user's device.
+
+**Requirements:**
+- Server-side processing using yt-dlp + FFmpeg
+- Real progress indicator via Server-Sent Events (SSE)
+- Direct browser download via `Content-Disposition` header
+- Filename: `{sanitized_title}_{quality}.{format}`
+- Server auto-deletes processed files after 10 minutes
+- Maximum file size: 2 GB
+- Rate limit: 15 downloads per hour per IP address
+
+**Progress States:**
+```
+Step 1:  "Fetching video info..."          ░░░░░░░░░░  10%
+Step 2:  "Downloading from source..."      ████░░░░░░  50%
+Step 3:  "Processing & converting..."      ████████░░  85%
+Step 4:  "Ready! Starting download..."     ██████████ 100%
+```
+
+**Error Handling:**
+| Failure | User Message | System Action |
+|---|---|---|
+| Source blocked/geo-restricted | "This video is not available for download" | Log error, suggest trying another quality |
+| Processing timeout (> 5 min) | "This is taking too long. Try a lower quality." | Kill job, free resources |
+| Server overloaded | "We're busy right now. Please try again in a minute." | Return 503 with Retry-After header |
+| File too large (> 2 GB) | "This file is too large. Try a lower quality." | Reject before processing |
+| yt-dlp extraction fails | "Something went wrong. Please try again." | Retry once, then fail gracefully |
+
+**Acceptance Criteria:**
+- [ ] Downloads succeed ≥ 95% of the time for launch platforms
+- [ ] Downloaded files play correctly in VLC, default OS player, and mobile
+- [ ] Progress bar reflects real server-side progress (not fake)
+- [ ] Filename is human-readable and safe for all operating systems
+- [ ] Files auto-deleted from server within 10 minutes
+- [ ] Rate limit enforced and communicated clearly to user
+
+---
+
+### F5: Download History (Local)
+
+**What:** A client-side record of past downloads for easy reference.
+
+**Requirements:**
+- Stored entirely in browser localStorage (nothing on server)
+- Each entry shows: Thumbnail (cached as base64), Title, Platform, Quality, Date
+- Maximum 50 entries (oldest auto-removed)
+- "Clear All History" button with confirmation
+- Collapsible section below the main download card
+- Explicit privacy note: *"History is stored only in your browser. We never see it."*
+
+**UI Reference:**
+```
+📋 Recent Downloads                          [Clear All]
+┌─────────────────────────────────────────────────────┐
+│ [🖼] How to Build a Startup · 720p · YouTube · Today │
+│ [🖼] Funny Cat Compilation · 1080p · TikTok · Yesterday │
+│ [🖼] Interview with CEO · MP3 · Twitter · Jan 12    │
+└─────────────────────────────────────────────────────┘
+🔒 Stored in your browser only. We never see this.
+```
+
+**Acceptance Criteria:**
+- [ ] History persists across browser sessions and page refreshes
+- [ ] "Clear All" removes all data immediately with no server call
+- [ ] No history data is ever transmitted to the server
+- [ ] Works correctly in incognito mode (cleared on session end)
+- [ ] Handles localStorage quota exceeded gracefully
+
+---
+
+### F6: Dark Mode
+
+**What:** Light and dark theme with system preference detection.
+
+**Requirements:**
+- Default: Follow operating system preference (`prefers-color-scheme`)
+- Manual toggle via sun/moon icon in header
+- User override saved in localStorage
+- Smooth CSS transition (200ms)
+- Both themes meet WCAG AA contrast requirements (4.5:1 minimum)
+
+**Acceptance Criteria:**
+- [ ] Correctly detects and applies system preference on first visit
+- [ ] Manual toggle overrides system preference
+- [ ] No flash of wrong theme on page load (SSR/inline script)
+- [ ] All text remains readable in both themes
+
+---
+
+### F7: Buy Me a Coffee Integration
+
+**What:** A non-intrusive donation button to sustain the project. This is the **only** monetization mechanism.
+
+**Requirements:**
+
+**Placement Locations:**
+
+| Location | Visibility | Style |
+|---|---|---|
+| Header (top-right) | Always visible | Small icon button: `☕` |
+| After successful download | Shown once per session | Inline card below download button |
+| Footer | Always visible | Text link: "☕ Buy me a coffee" |
+| About page (`/about`) | Always | Full story + prominent button |
+
+**Post-Download Prompt (Primary Conversion Point):**
+```
+┌───────────────────────────────────────────────────┐
+│  ✅ Download complete!                            │
+│                                                   │
+│  ─────────────────────────────────────────────    │
+│                                                   │
+│  ☕ SnapSave is 100% free and ad-free.            │
+│  If it saved you time, consider supporting:       │
+│                                                   │
+│  [ ☕ Buy Me a Coffee ]        [ Maybe Later ]    │
+└───────────────────────────────────────────────────┘
+```
+
+**Donation Tiers (configured on BMC platform):**
+```
+☕   $3  — Buy me a coffee
+☕☕  $5  — Buy me a fancy coffee
+🍕  $10 — Buy me lunch
+🚀  $25 — Fuel the servers for a day
+```
+
+**UX Rules (Non-Negotiable):**
+- ❌ NEVER block any functionality behind donation
+- ❌ NEVER show more than 1 donation prompt per browser session
+- ❌ NEVER use guilt-tripping or aggressive language
+- ❌ NEVER use pop-ups, modals, or overlays for donation asks
+- ✅ "Maybe Later" dismisses the prompt for 7 days (localStorage)
+- ✅ Prompt is inline, not a modal — user can scroll past it
+- ✅ Clicking BMC button opens buymeacoffee.com in a new tab
+- ✅ Small supporter counter: "Join 42 supporters" (updated via BMC API)
+
+**Technical Integration:**
+
+```html
+<!-- Option A: Official BMC Button (recommended) -->
+<a href="https://www.buymeacoffee.com/snapsave" target="_blank">
+  <img
+    src="https://cdn.buymeacoffee.com/buttons/v2/default-yellow.png"
+    alt="Buy Me A Coffee"
+    height="48"
+  />
+</a>
+
+<!-- Option B: Custom-styled button (brand-consistent) -->
+<a
+  href="https://www.buymeacoffee.com/snapsave"
+  target="_blank"
+  rel="noopener noreferrer"
+  class="bmc-btn"
+>
+  ☕ Buy me a coffee
+</a>
+```
+
+```javascript
+// Prompt display logic
+function shouldShowDonationPrompt() {
+  const dismissed = localStorage.getItem('bmc_dismissed');
+  const shownThisSession = sessionStorage.getItem('bmc_shown');
+
+  if (shownThisSession) return false;
+  if (dismissed) {
+    const dismissedAt = new Date(dismissed);
+    const sevenDaysAgo = new Date(Date.now() - 7 * 24 * 60 * 60 * 1000);
+    if (dismissedAt > sevenDaysAgo) return false;
+  }
+  return true;
+}
+
+function dismissPrompt() {
+  localStorage.setItem('bmc_dismissed', new Date().toISOString());
+  sessionStorage.setItem('bmc_shown', 'true');
+}
+```
+
+**Acceptance Criteria:**
+- [ ] BMC button visible in header and footer on all pages
+- [ ] Post-download prompt appears only once per session
+- [ ] "Maybe Later" suppresses prompt for 7 days
+- [ ] Clicking BMC button opens correct BMC page in new tab
+- [ ] No functionality is ever gated or degraded
+- [ ] Button renders correctly on mobile and desktop
+- [ ] Prompt never appears as a modal or overlay
+
+---
+
+### F8: Supporters Page
+
+**What:** A public page showing people who supported the project via Buy Me a Coffee.
+
+**Requirements:**
+- Route: `/supporters`
+- Show: Name (or "Anonymous"), amount, message, date
+- Data fetched from BMC API (`GET /api/v1/supporters`)
+- Cached for 1 hour (no real-time updates needed)
+- Only show supporters who opted in (BMC handles this)
+- Counter at top: "X people have supported SnapSave"
+
+**UI Reference:**
+```
+💛 Supporters
+
+SnapSave is kept alive by these amazing people.
+
+───────────────────────────────────────────────
+☕ Sarah M. — $5 — "Love this tool!" — Jan 14
+☕ Anonymous — $3 — Jan 13
+🍕 DevDude42 — $10 — "No ads = instant support" — Jan 12
+☕ Anonymous — $3 — Jan 11
+🚀 Maria L. — $25 — "Best video downloader ever" — Jan 10
+───────────────────────────────────────────────
+
+[ ☕ Join them — Buy me a coffee ]
+```
+
+**Acceptance Criteria:**
+- [ ] Page loads with cached supporter data
+- [ ] Graceful fallback if BMC API is unavailable
+- [ ] Anonymous supporters displayed as "Anonymous"
+- [ ] List sorted by most recent first
+
+---
+
+### F9: Share Button
+
+**What:** Let users share SnapSave with others after a successful download.
+
+**Requirements:**
+- Shown alongside the BMC prompt after download
+- Uses Web Share API on mobile (native share sheet)
+- Fallback on desktop: Copy Link button
+- Pre-filled text: *"I use SnapSave to download videos — free, no ads, no sign-up: https://snapsave.app"*
+
+**Acceptance Criteria:**
+- [ ] Web Share API triggers native share sheet on supported mobile browsers
+- [ ] "Copy Link" fallback works on desktop with visual confirmation
+- [ ] Share text includes the app URL
+
+---
+
+### F10: About Page
+
+**What:** Tell the story behind SnapSave.
+
+**Route:** `/about`
+
+**Content:**
+```
+# About SnapSave
+
+SnapSave is a free, open-source video downloader built by [Your Name].
+
+I was tired of sketchy download sites full of ads, pop-ups, and malware.
+So I built the tool I wished existed: fast, clean, and completely free.
+
+SnapSave is sustained entirely by community support — no ads, no
+subscriptions, no data selling. If it saves you time, you can buy
+me a coffee. That's it.
+
+Tech: Built with [stack]. Powered by yt-dlp and FFmpeg.
+Source: [GitHub link]
+
+[ ☕ Buy Me a Coffee ]   [ ⭐ Star on GitHub ]
+```
+
+---
+
+## 7. Pages & Navigation
+
+```
+/                → Home (link input + download flow)
+/about           → Story, mission, credits
+/supporters      → Wall of BMC supporters
+/privacy         → Privacy policy
+/terms           → Terms of service
+```
+
+**Header:**
+```
+[Logo] SnapSave              [About] [☕] [🌙/☀️]
+```
+
+**Footer:**
+```
+SnapSave · Free & Open Source · Made with ❤️
+[Privacy] [Terms] [GitHub] [☕ Buy me a coffee]
+```
+
+---
+
+## 8. Technical Architecture
+
+### 8.1 System Diagram
+
+```
+┌───────────────────────────────────────────────────────────┐
+│                     CLIENT (Browser)                      │
+│                                                           │
+│   Next.js / React          Tailwind CSS + shadcn/ui       │
+│   localStorage (history,   SSE listener (progress)        │
+│    preferences, BMC state)                                │
+│                                                           │
+└──────────────────────┬────────────────────────────────────┘
+                       │ HTTPS
+                       │
+┌──────────────────────▼────────────────────────────────────┐
+│                   Cloudflare CDN                          │
+│           DDoS protection · Static caching                │
+└──────────────────────┬────────────────────────────────────┘
+                       │
+┌──────────────────────▼────────────────────────────────────┐
+│                  BACKEND SERVER                           │
+│                                                           │
+│   Node.js (Fastify) or Python (FastAPI)                   │
+│                                                           │
+│   Routes:                                                 │
+│   ├── POST /api/extract      → get video metadata         │
+│   ├── POST /api/download     → start download job         │
+│   ├── GET  /api/progress/:id → SSE progress stream        │
+│   ├── GET  /api/file/:id     → serve completed file       │
+│   └── GET  /api/supporters   → proxy BMC supporter list   │
+│                                                           │
+│   ┌─────────────────────────────────────────────────┐     │
+│   │  yt-dlp                                         │     │
+│   │  • Video metadata extraction                    │     │
+│   │  • Stream downloading                           │     │
+│   │  • 1000+ site support                           │     │
+│   └─────────────────────────────────────────────────┘     │
+│                                                           │
+│   ┌─────────────────────────────────────────────────┐     │
+│   │  FFmpeg                                         │     │
+│   │  • Merge audio + video streams                  │     │
+│   │  • Format conversion (WEBM → MP4, etc.)        │     │
+│   │  • Audio extraction (→ MP3, M4A)               │     │
+│   └─────────────────────────────────────────────────┘     │
+│                                                           │
+│   ┌────────────────┐    ┌──────────────────────────┐      │
+│   │  Redis          │    │  /tmp/downloads/         │      │
+│   │  • Rate limiting│    │  • Temp file storage     │      │
+│   │  • Job tracking │    │  • Auto-purge (10 min)   │      │
+│   └────────────────┘    └──────────────────────────┘      │
+│                                                           │
+└───────────────────────────────────────────────────────────┘
+```
+
+### 8.2 Tech Stack
+
+| Layer | Choice | Why |
+|---|---|---|
+| Frontend | Next.js 14 + TypeScript | SSR for SEO, React ecosystem |
+| Styling | Tailwind CSS + shadcn/ui | Fast development, consistent design |
+| Backend | Python (FastAPI) or Node.js (Fastify) | Easy yt-dlp integration |
+| Video Engine | yt-dlp | Industry standard, 1,000+ sites, actively maintained |
+| Media Processing | FFmpeg | Audio/video merging and conversion |
+| Rate Limiting & Jobs | Redis | Fast, lightweight, proven |
+| Hosting | VPS (Hetzner) or Railway | Affordable for CPU-heavy workloads |
+| CDN / Security | Cloudflare (free tier) | DDoS protection, caching |
+| Analytics | Plausible or Umami (self-hosted) | Privacy-friendly, no cookies |
+| Error Monitoring | Sentry (free tier) | Real-time crash reporting |
+| Deployment | GitHub Actions → VPS | Simple CI/CD |
+
+### 8.3 API Specification
+
+---
+
+**`POST /api/extract`**
+Extract metadata from a video URL.
+
+Request:
+```json
+{
+  "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ"
+}
+```
+
+Response (200):
+```json
+{
+  "title": "Rick Astley - Never Gonna Give You Up",
+  "author": "Rick Astley",
+  "duration": 212,
+  "thumbnail": "https://i.ytimg.com/vi/dQw4w9WgXcQ/maxresdefault.jpg",
+  "platform": "youtube",
+  "formats": [
+    { "quality": "360p",  "format": "mp4", "size_mb": 15,  "has_audio": true },
+    { "quality": "480p",  "format": "mp4", "size_mb": 25,  "has_audio": true },
+    { "quality": "720p",  "format": "mp4", "size_mb": 45,  "has_audio": true },
+    { "quality": "1080p", "format": "mp4", "size_mb": 85,  "has_audio": true },
+    { "quality": "audio", "format": "mp3", "size_mb": 3.4, "bitrate": "128kbps" },
+    { "quality": "audio", "format": "mp3", "size_mb": 8.1, "bitrate": "320kbps" }
+  ]
+}
+```
+
+Response (400):
+```json
+{
+  "error": "UNSUPPORTED_URL",
+  "message": "Sorry, we don't support this site yet."
+}
+```
+
+---
+
+**`POST /api/download`**
+Start a download job.
+
+Request:
+```json
+{
+  "url": "https://www.youtube.com/watch?v=dQw4w9WgXcQ",
+  "quality": "720p",
+  "format": "mp4"
+}
+```
+
+Response (202):
+```json
+{
+  "job_id": "abc123",
+  "status": "queued",
+  "progress_url": "/api/progress/abc123"
+}
+```
+
+---
+
+**`GET /api/progress/:jobId`**
+Server-Sent Events stream for real-time progress.
+
+```
+event: progress
+data: {"status": "downloading", "percent": 34, "message": "Downloading from source..."}
+
+event: progress
+data: {"status": "processing", "percent": 87, "message": "Converting to MP4..."}
+
+event: complete
+data: {"status": "complete", "percent": 100, "download_url": "/api/file/abc123"}
+
+event: error
+data: {"status": "error", "message": "Video is unavailable in your region."}
+```
+
+---
+
+**`GET /api/file/:jobId`**
+Serve the completed file.
+
+Response Headers:
+```
+Content-Type: video/mp4
+Content-Disposition: attachment; filename="Rick_Astley_Never_Gonna_Give_You_Up_720p.mp4"
+Content-Length: 47185920
+Accept-Ranges: bytes
+```
+
+---
+
+**`GET /api/supporters`**
+Proxy cached BMC supporter list.
+
+Response (200):
+```json
+{
+  "total": 42,
+  "supporters": [
+    { "name": "Sarah M.", "amount": 5, "message": "Love this tool!", "date": "2025-01-14" },
+    { "name": "Anonymous", "amount": 3, "message": null, "date": "2025-01-13" }
+  ]
+}
+```
+
+---
+
+## 9. User Interface Design
+
+### 9.1 Design Principles
+
+1. **One action per screen** — the page does one thing: download a video
+2. **Speed is a feature** — minimize perceived and actual wait time
+3. **Trust through transparency** — show exactly what's happening
+4. **Mobile-first** — 60%+ of users will be on phones
+5. **Accessible** — WCAG 2.1 AA compliance
+
+### 9.2 Responsive Breakpoints
+
+| Breakpoint | Width | Layout |
+|---|---|---|
+| Mobile | < 640px | Full-width, stacked |
+| Tablet | 640–1024px | Centered card, medium padding |
+| Desktop | > 1024px | Centered card, max-width 640px |
+
+### 9.3 Homepage Wireframe
+
+```
+┌──────────────────────────────────────────────────────────────┐
+│  [Logo] SnapSave                        [About] [☕] [🌙]   │
+├──────────────────────────────────────────────────────────────┤
+│                                                              │
+│                                                              │
+│            Download Any Video. Instantly. Free.              │
+│                                                              │
+│        No ads. No sign-up. No tracking. Just paste.          │
+│                                                              │
+│   ┌──────────────────────────────────────────────────────┐   │
+│   │  🔗  Paste any video link...          [📋] [ ⬇ Go ] │   │
+│   └──────────────────────────────────────────────────────┘   │
+│                                                              │
+│   🎬 YouTube  📸 Instagram  🎵 TikTok  🐦 Twitter  +1000   │
+│                                                              │
+│                                                              │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─    │
+│                                                              │
+│            ↓ AFTER URL IS PASTED (this section appears) ↓   │
+│                                                              │
+│   ┌──────────────────────────────────────────────────────┐   │
+│   │                                                      │   │
+│   │  ┌────────────┐  📺 "Video Title Here"              │   │
+│   │  │ Thumbnail  │  👤 Channel Name                    │   │
+│   │  │            │  ⏱ 12:34 · 🎬 YouTube              │   │
+│   │  └────────────┘                                      │   │
+│   │                                                      │   │
+│   │  Quality: [360p] [480p] [720p ✓] [1080p] [4K]       │   │
+│   │  Format:  [🎬 MP4 ✓] [🎬 WEBM] [🎵 MP3]           │   │
+│   │                                                      │   │
+│   │  Estimated size: ~45 MB                              │   │
+│   │                                                      │   │
+│   │              [ ⬇  Download — 45 MB ]                │   │
+│   │                                                      │   │
+│   └──────────────────────────────────────────────────────┘   │
+│                                                              │
+│            ↓ AFTER DOWNLOAD COMPLETES ↓                      │
+│                                                              │
+│   ┌──────────────────────────────────────────────────────┐   │
+│   │  ✅ Download complete!                               │   │
+│   │                                                      │   │
+│   │  ☕ SnapSave is 100% free, forever.                  │   │
+│   │  If it saved you time:                               │   │
+│   │                                                      │   │
+│   │  [ ☕ Buy Me a Coffee ]       [ Maybe Later ]        │   │
+│   └──────────────────────────────────────────────────────┘   │
+│                                                              │
+│                                                              │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─    │
+│                                                              │
+│   📋 Recent Downloads                        [Clear All]     │
+│   ┌──────────────────────────────────────────────────────┐   │
+│   │ [🖼] How to Build a Startup · 720p · YouTube · Today │   │
+│   │ [🖼] Cat Compilation · 1080p · TikTok · Yesterday   │   │
+│   └──────────────────────────────────────────────────────┘   │
+│   🔒 Stored in your browser only. We never see this.        │
+│                                                              │
+│                                                              │
+│   ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─ ─    │
+│                                                              │
+│   💡 How it works                                            │
+│   1. Paste a link  →  2. Choose quality  →  3. Download     │
+│                                                              │
+│   🔒 Private by design                                      │
+│   No accounts. No cookies. No tracking.                      │
+│   Your history stays in your browser.                        │
+│                                                              │
+│   ⚡ Powered by yt-dlp                                      │
+│   Supports 1000+ websites. Updated daily.                    │
+│                                                              │
+├──────────────────────────────────────────────────────────────┤
+│  [Privacy] [Terms] [GitHub] [☕ Buy me a coffee]             │
+│  Made with ❤️ · SnapSave 2025                               │
+└──────────────────────────────────────────────────────────────┘
+```
+
+---
+
+## 10. Non-Functional Requirements
+
+### 10.1 Performance
+
+| Metric | Target |
+|---|---|
+| First Contentful Paint | < 1.2s |
+| Largest Contentful Paint | < 1.8s |
+| Metadata extraction | < 3s |
+| Paste → download starts | < 8s (average) |
+| Concurrent users supported | 100 simultaneous downloads |
+| Maximum file size | 2 GB |
+
+### 10.2 Security
+
+- All traffic over HTTPS with HSTS
+- Input sanitization on all user-provided URLs
+- SSRF protection — block requests to private IPs, localhost, internal networks
+- Rate limiting: 15 downloads/hour per IP (Redis sliding window)
+- CORS restricted to app domain only
+- Content Security Policy headers
+- No user-uploaded files — only URLs processed server-side
+- File type validation on all generated outputs
+
+### 10.3 Privacy
+
+- **No cookies.** None. Zero.
+- **No user accounts.** No email collection. No sign-ups.
+- **No tracking scripts.** No Google Analytics. Use Plausible (cookieless) or nothing.
+- **No server-side logs of URLs.** Video URLs are processed and forgotten.
+- **Download history is client-side only.** Never transmitted.
+- **No data selling, sharing, or profiling.** Ever.
+- GDPR compliant by design (no personal data collected)
+- No cookie consent banner needed (because no cookies)
+
+### 10.4 Reliability
+
+- Target uptime: 99%
+- yt-dlp auto-updated nightly via cron job
+- Health check endpoint: `GET /api/health`
+- External uptime monitoring (UptimeRobot, free)
+- Graceful degradation: if one platform breaks, others still work
+- Retry logic: 2 automatic retries with exponential backoff
+- Human-readable error messages (never show stack traces)
+
+---
+
+## 11. Rate Limiting
+
+| Rule | Limit | Window | Response |
+|---|---|---|---|
+| Metadata extraction | 30 requests | per hour per IP | 429 + "Try again in X minutes" |
+| Download jobs | 15 downloads | per hour per IP | 429 + "You've reached the hourly limit" |
+| Concurrent downloads | 3 simultaneous | per IP | 429 + "Please wait for current downloads to finish" |
+| API general | 60 requests | per minute per IP | 429 + Retry-After header |
+
+Limits are communicated to the user via a subtle banner, never a modal.
+
+---
+
+## 12. Legal
+
+### 12.1 Terms of Service Summary
+- SnapSave is a tool — we do not host, store, or distribute content
+- Users are responsible for ensuring they have rights to download content
+- Downloads are for personal use only
+- Service provided "as is" without warranty
+- We comply with DMCA takedown requests
+- DMCA contact: `dmca@snapsave.app`
+
+### 12.2 Privacy Policy Summary
+- We collect nothing from free users
+- No cookies, no accounts, no IP logging
+- Buy Me a Coffee handles its own data per its privacy policy
+- Analytics (if any): cookieless, aggregated, no PII
+- Right to inquire: email `privacy@snapsave.app`
+
+---
+
+## 13. Cost Estimate (Monthly)
+
+| Item | Cost | Notes |
+|---|---|---|
+| VPS (Hetzner CPX31) | $15 | 4 vCPU, 8GB RAM, 160GB SSD |
+| Domain | $1 | ~$12/year |
+| Cloudflare | $0 | Free tier |
+| Plausible Analytics | $0 | Self-hosted, or $9 if cloud |
+| Sentry | $0 | Free tier (5K events/mo) |
+| UptimeRobot | $0 | Free tier |
+| **Total** | **~$16/month** | |
+
+Break-even: **6 coffees per month** ($18).
+
+---
+
+## 14. Success Metrics
+
+| Metric | How Measured | 3-Month Target |
+|---|---|---|
+| Monthly Active Users | Plausible analytics | 25,000 |
+| Download success rate | Server logs (aggregated) | ≥ 95% |
+| Average time to download | Server metrics | < 8 seconds |
+| Buy Me a Coffee supporters | BMC dashboard | 50 total |
+| Monthly donations | BMC dashboard | $100+/month |
+| GitHub stars | GitHub | 500 |
+| Uptime | UptimeRobot | ≥ 99% |
+
+---
+
+## 15. Roadmap
+
+### Phase 1 — MVP (Weeks 1–3)
+- [ ] Link input with URL validation and platform detection
+- [ ] Video metadata extraction and preview card
+- [ ] Quality and format selector
+- [ ] Download with real progress indicator
+- [ ] Mobile-responsive design
+- [ ] Dark mode
+- [ ] Buy Me a Coffee button (header, footer, post-download)
+- [ ] Privacy policy and Terms of Service pages
+- [ ] Deploy to production
+- [ ] Launch on Reddit, Hacker News, Product Hunt
+
+### Phase 2 — Polish (Weeks 4–6)
+- [ ] Download history (localStorage)
+- [ ] About page with project story
+- [ ] Supporters page (BMC API integration)
+- [ ] Share button (Web Share API)
+- [ ] Error tracking (Sentry)
+- [ ] Health monitoring (UptimeRobot)
+- [ ] SEO basics (meta tags, Open Graph, sitemap)
+- [ ] Tier 2 platform support
+
+### Phase 3 — Growth (Weeks 7–12)
+- [ ] PWA support (installable on mobile home screen)
+- [ ] Tier 3 platform support + generic extractor
+- [ ] Browser extension (Chrome, Firefox)
+- [ ] Open-source the codebase on GitHub
+- [ ] Contributor documentation
+- [ ] Localization (Spanish, Portuguese, German, French)
+
+---
+
+## 16. Risks & Mitigations
+
+| Risk | Likelihood | Impact | Mitigation |
+|---|---|---|---|
+| YouTube blocks yt-dlp | Medium | High | Auto-update yt-dlp nightly; community patches within hours |
+| Very low donation rate | High | Medium | Keep costs at ~$16/month; 6 coffees covers it |
+| DMCA takedown requests | Medium | Medium | Clear ToS; DMCA process; we're a tool, not a host |
+| Server overload at scale | Medium | Medium | Rate limiting; queue-based processing; upgrade VPS |
+| Platform-specific breakage | High | Low | yt-dlp community maintains extractors; status page |
+| Legal threats from platforms | Low | High | Legal review; privacy jurisdiction; clear terms |
+
+---
+
+## 17. Out of Scope (Explicitly)
+
+The following are **not** part of this product:
+
+- ❌ User accounts and authentication
+- ❌ Paid subscription tiers
+- ❌ Ads of any kind
+- ❌ Affiliate links
+- ❌ Batch / playlist download
+- ❌ API for third-party developers
+- ❌ Browser notifications
+- ❌ Email collection or newsletters
+- ❌ Mobile native app
+- ❌ Video editing or trimming features
+- ❌ Cloud storage of downloaded files
+
+---
+
+## 18. Appendix
+
+### A. yt-dlp Auto-Update Cron
+```bash
+# Every day at 3:00 AM UTC
+0 3 * * * pip install --upgrade yt-dlp && systemctl restart snapsave
+```
+
+### B. Temp File Cleanup Cron
+```bash
+# Every 5 minutes: delete files older than 10 minutes
+*/5 * * * * find /tmp/snapsave/ -type f -mmin +10 -delete
+```
+
+### C. Health Check Endpoint
+```json
+GET /api/health
+
+{
+  "status": "ok",
+  "yt_dlp_version": "2025.01.15",
+  "ffmpeg": true,
+  "disk_free_gb": 42,
+  "active_jobs": 7,
+  "uptime_hours": 312
+}
+```
+
+### D. Donation Prompt State Machine
+```
+START
+  │
+  ▼
+User completes download
+  │
+  ├── Already shown this session? → DO NOT SHOW
+  ├── Dismissed within last 7 days? → DO NOT SHOW
+  └── Otherwise → SHOW INLINE PROMPT
+                    │
+                    ├── User clicks "Buy Me a Coffee" → Open BMC in new tab
+                    └── User clicks "Maybe Later" → Set localStorage timestamp
+                                                    Set sessionStorage flag
+                                                    Hide prompt
+```
+
+---
+
+*This is the complete product. One page. One input. One purpose. Free forever. Sustained by coffee.* ☕
