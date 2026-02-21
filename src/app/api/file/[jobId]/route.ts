@@ -7,7 +7,7 @@ const DOWNLOAD_DIR = path.join(process.cwd(), 'tmp-downloads');
 
 export async function GET(
     req: NextRequest,
-    { params }: { params: { jobId: string } }
+    { params }: { params: Promise<{ jobId: string }> }
 ) {
     const { jobId } = await params;
 
