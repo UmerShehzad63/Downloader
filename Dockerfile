@@ -13,46 +13,46 @@ RUN npm run build
 # Stage 2: Production runner
 FROM node:20-slim AS runner
 
-# Hugging Face requires UID 1000. In node:20-slim, the user 'node' already has UID 1000.
-# We use root initially to install system-level tools.
+# Use root to install system-level tools
 USER root
 
-# Install system dependencies (FFmpeg and Python for yt-dlp)
+# Install system dependencies + dnsutils to fix networking
 RUN apt-get update && apt-get install -y \
     python3 \
     python3-pip \
     ffmpeg \
+    dnsutils \
     && rm -rf /var/lib/apt/lists/*
 
-# Link python3 to python and install yt-dlp
+# Link python3 to python and install latest yt-dlp
 RUN ln -s /usr/bin/python3 /usr/bin/python
-RUN python3 -m pip install --break-system-packages yt-dlp
+RUN python3 -m pip install --no-cache-dir -U yt-dlp
 
 # Set up the working directory inside the 'node' user's home
 WORKDIR /home/node/app
 
-# Create the downloads folder and ensure the 'node' user owns it
+# Create the downloads folder and ensure correct permissions
 RUN mkdir -p tmp-downloads/.jobs && \
     chown -R node:node /home/node/app && \
     chmod -R 777 /home/node/app/tmp-downloads
 
-# Switch to the existing 'node' user (UID 1000)
-USER node
-
-# Set environment variables required for Next.js standalone and Hugging Face
+# Set environment variables
 ENV HOME=/home/node \
     PATH=/home/node/.local/bin:$PATH \
     NODE_ENV=production \
     PORT=7860 \
     HOSTNAME="0.0.0.0"
 
-# Copy the standalone build from the builder stage with correct ownership
+# Copy the standalone build with correct ownership
 COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 COPY --from=builder --chown=node:node /app/public ./public
 
+# Final switch to node user (UID 1000)
+USER node
+
 # Hugging Face Spaces listen on port 7860
 EXPOSE 7860
 
-# Start the Next.js server
+# We use the IPv4 flag (-4) in many yt-dlp implementations to avoid DNS/IPv6 hang-ups
 CMD ["node", "server.js"]
