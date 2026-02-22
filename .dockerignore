@@ -1,0 +1,11 @@
+node_modules
+.next
+tmp-downloads
+.git
+.gitignore
+Dockerfile
+.dockerignore
+README.md
+DEPLOYMENT.md
+prd
+snapsave.log
