@@ -21,7 +21,7 @@ export interface VideoMetadata {
 }
 
 export async function extractMetadata(url: string): Promise<VideoMetadata> {
-  const { stdout } = await execPromise(`python -m yt_dlp --dump-json --no-playlist "${url}"`);
+  const { stdout } = await execPromise(`python -m yt_dlp -4 --dump-json --no-playlist "${url}"`);
   const data = JSON.parse(stdout);
 
   const formats = data.formats.map((f: any) => ({

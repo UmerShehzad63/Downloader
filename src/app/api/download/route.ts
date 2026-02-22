@@ -33,6 +33,7 @@ export async function POST(req: NextRequest) {
 
         const args: string[] = [
             '-m', 'yt_dlp',
+            '-4',
             '--no-playlist',
             '--newline',
             '-o', outputTemplate,
