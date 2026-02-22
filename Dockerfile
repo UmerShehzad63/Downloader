@@ -31,12 +31,12 @@ RUN python3 -m pip install --no-cache-dir -U yt-dlp
 # Set up the working directory inside the 'node' user's home
 WORKDIR /home/node/app
 
-# Create the downloads folder and ensure correct permissions
+# Create the downloads folder and ensure correct permissions for UID 1000
 RUN mkdir -p tmp-downloads/.jobs && \
     chown -R node:node /home/node/app && \
     chmod -R 777 /home/node/app/tmp-downloads
 
-# Set environment variables
+# Set environment variables for HF
 ENV HOME=/home/node \
     PATH=/home/node/.local/bin:$PATH \
     NODE_ENV=production \
@@ -48,11 +48,11 @@ COPY --from=builder --chown=node:node /app/.next/standalone ./
 COPY --from=builder --chown=node:node /app/.next/static ./.next/static
 COPY --from=builder --chown=node:node /app/public ./public
 
-# Final switch to node user (UID 1000)
+# Final switch to node user (existing UID 1000)
 USER node
 
 # Hugging Face Spaces listen on port 7860
 EXPOSE 7860
 
-# We use the IPv4 flag (-4) in many yt-dlp implementations to avoid DNS/IPv6 hang-ups
+# Start the application
 CMD ["node", "server.js"]
